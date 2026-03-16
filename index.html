@@ -63,6 +63,7 @@ let gameOver = false;
 let levelWon = false;
 let holdingJump = false;
 let speed = 4.2;
+const difficulty = 1;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -93,7 +94,7 @@ function loadLevel(lvl) {
     if (Math.random() < 0.7) spikes.push({x: x + 60, y: 40, side: 'top'});
 
     // floating saws - VERY few on lvl 1, ramps up
-    const sawCount = Math.floor(0.5 + lvl * 1.2); // lvl1 ≈0-1, lvl5 ≈6-7 per cluster
+    const sawCount = Math.floor(0.5 + lvl * 1.2 * difficulty); // lvl1 ≈0-1, lvl5 ≈6-7 per cluster
     for (let i = 0; i < sawCount; i++) {
       let sy = 140 + Math.random() * (canvas.height - 300);
       saws.push({x: x + 40 + Math.random()*120, y: sy});
