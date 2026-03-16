@@ -7,11 +7,11 @@
   body { margin:0; background:#000; overflow:hidden; font-family:Arial; color:#0f0; }
   canvas { display:block; }
   .screen { position:absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.92); z-index:30; text-align:center; }
-  .screen h1 { font-size:72px; margin:0; text-shadow:0 0 30px #ff0; }
-  button { font-size:32px; padding:18px 50px; margin:20px; background:#111; color:#ff0; border:5px solid #ff0; cursor:pointer; }
-  button:hover { background:#ff0; color:#000; }
-  #sahurImg { position:absolute; right:30px; top:120px; width:190px; z-index:15; border:6px solid #ff0; box-shadow:0 0 30px #ff0; display:none; }
-  #ui { position:absolute; top:15px; left:15px; font-size:26px; pointer-events:none; z-index:10; text-shadow:0 0 10px #ff0; }
+  .screen h1 { font-size:72px; margin:0; text-shadow:0 0 30px #ff9933; }
+  button { font-size:32px; padding:18px 50px; margin:20px; background:#111; color:#ff9933; border:5px solid #ff9933; cursor:pointer; }
+  button:hover { background:#ff9933; color:#000; }
+  #sahurImg { position:absolute; right:30px; top:120px; width:190px; z-index:15; border:6px solid #ff9933; box-shadow:0 0 30px #ff9933; display:none; }
+  #ui { position:absolute; top:15px; left:15px; font-size:26px; pointer-events:none; z-index:10; text-shadow:0 0 10px #ff9933; }
 </style>
 </head>
 <body>
@@ -20,8 +20,8 @@
 <img id="sahurImg" src="https://media.sketchfab.com/models/c1f78892ae1a42478d34143d6a0f70bc/thumbnails/2f64937e0efd4d5bbdf50aa5c9183a51/e716832ee8af4e3081b879d5d50293d6.jpeg" alt="TUNG TUNG TUNG SAHUR">
 
 <div id="mainMenu" class="screen" style="display:flex;">
-  <h1>TUNG TUNG WAVE TRIALS beta-3.1</h1>
-  <p style="font-size:32px;margin:10px;color:#ff0;">By Henry C & John J</p>
+  <h1>TUNG TUNG WAVE TRIALS beta-3.2</h1>
+  <p style="font-size:32px;margin:10px;color:#ff9933;">By Henry C & John J</p>
   <button onclick="showLevelSelect()">START TRIALS</button>
   <button onclick="alert('HOLD SPACE/CLICK = fly up\nRelease = drop\nDodge spikes + spinning saws\nLevel 1 is now chill, 5 is saw apocalypse')">HOW TO PLAY</button>
 </div>
@@ -36,7 +36,7 @@
   <button onclick="showMainMenu()">BACK</button>
 </div>
 
-<div id="levelComplete" class="screen" style="color:#ff0;">
+<div id="levelComplete" class="screen" style="color:#ff9933;">
   <h1>TRIAL COMPLETE! 🎉</h1>
   <p style="font-size:36px;">Score: <span id="finalScore">0</span></p>
   <button onclick="nextLevel()">NEXT TRIAL</button>
@@ -44,13 +44,13 @@
 </div>
 
 <div id="restart" class="screen" style="color:#f00; background:rgba(20,0,0,0.95);">
-  <h1>YOU GOT TUNGGED + SAWN 💀</h1>
+  <h1>YOU GOT TUNGGED 💀</h1>
   <p style="font-size:32px;">Score: <span id="deathScore">0</span></p>
   <button onclick="restartLevel()">TRY AGAIN</button>
   <button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
 
-<div id="ui">Trial <span id="levelNum">1</span> | Score: <span id="score">0</span></div>
+<div id="ui">Level <span id="levelNum">1</span> | Score: <span id="score">0</span></div>
 
 <script>
 const canvas = document.getElementById('c');
