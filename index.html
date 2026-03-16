@@ -20,10 +20,11 @@
 <img id="sahurImg" src="https://media.sketchfab.com/models/c1f78892ae1a42478d34143d6a0f70bc/thumbnails/2f64937e0efd4d5bbdf50aa5c9183a51/e716832ee8af4e3081b879d5d50293d6.jpeg" alt="TUNG TUNG TUNG SAHUR">
 
 <div id="mainMenu" class="screen" style="display:flex;">
-  <h1>TUNG TUNG WAVE TRIALS beta-3.2</h1>
-  <p style="font-size:32px;margin:10px;color:#ff9933;">By Henry C & John J</p>
-  <button onclick="showLevelSelect()">START TRIALS</button>
-  <button onclick="alert('HOLD SPACE/CLICK = fly up\nRelease = drop\nDodge spikes + spinning saws\nLevel 1 is now chill, 5 is saw apocalypse')">HOW TO PLAY</button>
+  <h1>Tung Tung Wave Trials</h1>
+  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 3.2</p>
+  <button onclick="showLevelSelect()">Start Game</button>
+  <button onclick="alert('Hold Click/Space to go up, release to go down')">How to play</button>
+  <button onclick="alert('Made by Henry C (and grok)')">Credits</button>
 </div>
 
 <div id="levelSelect" class="screen">
@@ -37,14 +38,14 @@
 </div>
 
 <div id="levelComplete" class="screen" style="color:#ff9933;">
-  <h1>TRIAL COMPLETE! 🎉</h1>
+  <h1>LEVEL COMPLETE! 🎉</h1>
   <p style="font-size:36px;">Score: <span id="finalScore">0</span></p>
   <button onclick="nextLevel()">NEXT TRIAL</button>
   <button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
 
 <div id="restart" class="screen" style="color:#f00; background:rgba(20,0,0,0.95);">
-  <h1>YOU GOT TUNGGED 💀</h1>
+  <h1>YOU GOT LOSE</h1>
   <p style="font-size:32px;">Score: <span id="deathScore">0</span></p>
   <button onclick="restartLevel()">TRY AGAIN</button>
   <button onclick="showLevelSelect()">TRIAL SELECT</button>
