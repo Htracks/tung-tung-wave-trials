@@ -18,18 +18,25 @@
 <canvas id="c"></canvas>
 <img id="sahurImg" src="https://media.sketchfab.com/models/c1f78892ae1a42478d34143d6a0f70bc/thumbnails/2f64937e0efd4d5bbdf50aa5c9183a51/e716832ee8af4e3081b879d5d50293d6.jpeg" alt="TUNG TUNG TUNG SAHUR">
 
-<!-- Audio for tung tung tung sahur -->
+<!-- Sounds -->
 <audio id="sahurSound" preload="auto">
   <source src="https://www.myinstants.com/media/sounds/tung-tung-sahur.mp3" type="audio/mpeg">
+</audio>
+<audio id="ramadanMusic" preload="auto" loop>
+  <source src="https://cdn.pixabay.com/audio/2023/08/07/audio_3b8d4e3f5d.mp3" type="audio/mpeg">
 </audio>
 
 <div id="mainMenu" class="screen" style="display:flex;">
   <h1>Tung Tung Wave Trials</h1>
-  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 5</p>
-  <button onclick="showLevelSelect()">Start Game</button>
-  <button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
+  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 6.1</p>
+  <div style="display:flex; flex-wrap:wrap; justify-content:center;">
+    <button onclick="showLevelSelect()">Start Game</button>
+    <button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
+    <button id="ramadanBtn" onclick="toggleRamadanMode()">Ramadan Mode</button>
+  </div>
   <button onclick="alert('Made by Henry C (and grok)')">Credits</button>
 </div>
+
 <div id="levelSelect" class="screen">
   <h1>CHOOSE TRIAL</h1>
   <button onclick="startLevel(1)">1 - Warm Up (very few saws)</button>
@@ -39,18 +46,21 @@
   <button onclick="startLevel(5)">5 - SAHUR SAW BOSS</button>
   <button onclick="showMainMenu()">BACK</button>
 </div>
+
 <div id="levelComplete" class="screen" style="color:#ff9933;">
   <h1>LEVEL COMPLETE! 🎉</h1>
   <p style="font-size:36px;">Score: <span id="finalScore">0</span></p>
   <button onclick="nextLevel()">NEXT TRIAL</button>
   <button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
+
 <div id="restart" class="screen" style="color:#f00; background:rgba(20,0,0,0.95);">
   <h1>YOU GOT TUNGGED</h1>
   <p style="font-size:32px;">Score: <span id="deathScore">0</span></p>
   <button onclick="restartLevel()">TRY AGAIN</button>
   <button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
+
 <div id="ui">Level <span id="levelNum">1</span> | Score: <span id="score">0</span></div>
 
 <script>
@@ -58,6 +68,8 @@ const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const sahurImg = document.getElementById('sahurImg');
 const sahurAudio = document.getElementById('sahurSound');
+const ramadanAudio = document.getElementById('ramadanMusic');
+const ramadanBtn = document.getElementById('ramadanBtn');
 
 let currentLevel = 0;
 let cameraX = 0;
@@ -67,6 +79,11 @@ let levelWon = false;
 let speed = 4.2;
 const difficulty = 1;
 
+let isRamadanMode = false;
+
+const normalImgSrc = "https://media.sketchfab.com/models/c1f78892ae1a42478d34143d6a0f70bc/thumbnails/2f64937e0efd4d5bbdf50aa5c9183a51/e716832ee8af4e3081b879d5d50293d6.jpeg";
+const ramadanImgSrc = "https://png.pngtree.com/png-clipart/20230401/ourmid/pngtree-ramadan-crescent-moon-png-image_6694326.png";
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -75,14 +92,11 @@ let player = { x:120, y:canvas.height - 0, size:38, vy:0 };
 // Track any key being held
 const keys = new Set();
 window.addEventListener('keydown', e => {
-  if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) {
-    e.preventDefault();
-  }
+  if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
   keys.add(e.code);
 });
 window.addEventListener('keyup', e => keys.delete(e.code));
 
-// Mouse & touch support
 canvas.addEventListener('mousedown', () => keys.add('Mouse'));
 canvas.addEventListener('mouseup', () => keys.delete('Mouse'));
 canvas.addEventListener('touchstart', e => { e.preventDefault(); keys.add('Touch'); });
@@ -91,7 +105,20 @@ canvas.addEventListener('touchend', () => keys.delete('Touch'));
 let spikes = [];
 let saws = [];
 
-let lastSahurTime = 0;
+let lastSoundTime = 0;
+
+function toggleRamadanMode() {
+  isRamadanMode = !isRamadanMode;
+  ramadanBtn.textContent = isRamadanMode ? "Ramadan Mode ON" : "Ramadan Mode";
+  if (isRamadanMode) {
+    sahurImg.src = ramadanImgSrc;
+  } else {
+    sahurImg.src = normalImgSrc;
+  }
+  // Optional: stop any playing audio when toggling
+  sahurAudio.pause();
+  ramadanAudio.pause();
+}
 
 function loadLevel(lvl) {
   currentLevel = lvl;
@@ -104,16 +131,14 @@ function loadLevel(lvl) {
   document.getElementById('levelComplete').style.display = 'none';
   spikes = [];
   saws = [];
-  lastSahurTime = Date.now();
+  lastSoundTime = Date.now();
 
   let x = 500;
   const baseGap = 180 - lvl * 28;
   while (x < 6500) {
-    // Only top spikes (bottom ones removed)
     if (Math.random() < 0.7) {
       spikes.push({x: x + 60, y: 40, side: 'top'});
     }
-    // Half the saws
     const sawCount = Math.floor(0.25 + lvl * 0.6 * difficulty);
     for (let i = 0; i < sawCount; i++) {
       let sy = 140 + Math.random() * (canvas.height - 300);
@@ -161,7 +186,6 @@ function update() {
   cameraX += speed;
   score = Math.floor(cameraX / 10);
 
-  // Collision with top spikes only now
   for (let s of spikes) {
     let sx = s.x - cameraX;
     if (sx < -100 || sx > canvas.width + 100) continue;
@@ -181,6 +205,8 @@ function update() {
     document.getElementById('deathScore').textContent = score;
     document.getElementById('restart').style.display = 'flex';
     sahurImg.style.display = 'none';
+    sahurAudio.pause();
+    ramadanAudio.pause();
   }
 
   if (cameraX > 5800) {
@@ -188,21 +214,27 @@ function update() {
     document.getElementById('finalScore').textContent = score;
     document.getElementById('levelComplete').style.display = 'flex';
     sahurImg.style.display = 'none';
+    sahurAudio.pause();
+    ramadanAudio.pause();
   }
 
-  // Play tung tung tung sahur sound ~every 5 seconds during gameplay
+  // Periodic sound based on mode (~every 5-6 seconds)
   const now = Date.now();
-  if (currentLevel > 0 && !gameOver && !levelWon && now - lastSahurTime > 5000) {
-    sahurAudio.currentTime = 0;
-    sahurAudio.play().catch(() => {}); // ignore autoplay block errors
-    lastSahurTime = now;
+  if (currentLevel > 0 && !gameOver && !levelWon && now - lastSoundTime > 5500) {
+    if (isRamadanMode) {
+      ramadanAudio.currentTime = 0;
+      ramadanAudio.play().catch(() => {});
+    } else {
+      sahurAudio.currentTime = 0;
+      sahurAudio.play().catch(() => {});
+    }
+    lastSoundTime = now;
   }
 }
 
 function draw() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // Orange-ish gradient background
   let grad = ctx.createLinearGradient(0,0,0,canvas.height);
   grad.addColorStop(0, '#ff5500');
   grad.addColorStop(1, '#330000');
@@ -217,7 +249,6 @@ function draw() {
   for (let s of spikes) {
     let sx = s.x - cameraX;
     if (sx > -50 && sx < canvas.width + 50) {
-      // Only top spikes are drawn anyway
       ctx.beginPath();
       ctx.moveTo(sx+25, s.y+70);
       ctx.lineTo(sx, s.y);
@@ -244,9 +275,10 @@ function draw() {
     }
   }
 
+  // Player with rotation based on vy (stronger tilt)
   ctx.save();
   ctx.translate(player.x + 25, player.y + 20);
-  ctx.rotate(player.vy * 0.03);
+  ctx.rotate(player.vy * 0.08);  // Increased multiplier for more noticeable wave-like rotation
   ctx.fillStyle = '#a0f';
   ctx.beginPath(); ctx.moveTo(32,0); ctx.lineTo(-22,-19); ctx.lineTo(-14,0); ctx.lineTo(-22,19); ctx.closePath(); ctx.fill();
   ctx.restore();
