@@ -28,13 +28,13 @@
 
 <div id="mainMenu" class="screen" style="display:flex;">
   <h1>Tung Tung Wave Trials</h1>
-  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 7 - added wave trail</p>
+  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 7.1 - fixed wave trail</p>
   <div style="display:flex; flex-wrap:wrap; justify-content:center;">
     <button onclick="showLevelSelect()">Start Game</button>
     <button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
     <button id="ramadanBtn" onclick="toggleRamadanMode()">Ramadan Mode</button>
   </div>
-  <button onclick="alert('Made by Henry C (and grok)')">Credits</button>
+  <button onclick="alert('Made by Henry (and grok)')">Credits</button>
 </div>
 
 <div id="levelSelect" class="screen">
@@ -98,11 +98,11 @@ function loadRamadanBg() {
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let player = { x:120, y:canvas.height / 2, size:38, vy:0 };
+let player = { x: 120, y: canvas.height / 2, size: 38, vy: 0 };
 
-// Trail system
-const trail = [];           // array of {x, y, rotation}
-const maxTrailLength = 24;  // how many segments (adjust for longer/shorter trail)
+// Trail (now stored in SCREEN coordinates)
+let trail = [];
+const maxTrailLength = 24;
 const trailFadeStep = 1 / maxTrailLength;
 
 const keys = new Set();
@@ -141,7 +141,7 @@ function loadLevel(lvl) {
   cameraX = 0; score = 0;
   player.y = canvas.height - 500; player.vy = 0;
   gameOver = false; levelWon = false;
-  trail.length = 0; // clear trail on level start
+  trail.length = 0;
   document.getElementById('levelNum').textContent = lvl;
   document.getElementById('restart').style.display = 'none';
   document.getElementById('levelComplete').style.display = 'none';
@@ -164,14 +164,14 @@ function loadLevel(lvl) {
   }
 }
 
-function showMainMenu() { /* unchanged */ 
+function showMainMenu() {
   document.getElementById('mainMenu').style.display = 'flex';
   document.getElementById('levelSelect').style.display = 'none';
   sahurImg.style.display = 'none';
   currentLevel = 0;
 }
 
-function showLevelSelect() { /* unchanged */ 
+function showLevelSelect() {
   document.getElementById('mainMenu').style.display = 'none';
   document.getElementById('levelSelect').style.display = 'flex';
   sahurImg.style.display = 'none';
@@ -203,12 +203,13 @@ function update() {
   cameraX += speed;
   score = Math.floor(cameraX / 10);
 
-  // Add current position + rotation to trail
+  // Store SCREEN coordinates for the trail
+  const screenX = player.x + 25;
+  const screenY = player.y + 20;
   const rotation = player.vy * 0.08;
-  trail.push({x: player.x + 25, y: player.y + 20, rot: rotation});
+  trail.push({x: screenX, y: screenY, rot: rotation});
   if (trail.length > maxTrailLength) trail.shift();
 
-  // ─── collisions (unchanged) ───
   for (let s of spikes) {
     let sx = s.x - cameraX;
     if (sx < -100 || sx > canvas.width + 100) continue;
@@ -230,6 +231,7 @@ function update() {
     sahurImg.style.display = 'none';
     sahurAudio.pause();
     ramadanAudio.pause();
+    trail.length = 0;
   }
 
   if (cameraX > 5800) {
@@ -239,6 +241,7 @@ function update() {
     sahurImg.style.display = 'none';
     sahurAudio.pause();
     ramadanAudio.pause();
+    trail.length = 0;
   }
 
   const now = Date.now();
@@ -316,13 +319,13 @@ function draw() {
     }
   }
 
-  // ─── Draw trail first (behind player) ───
+  // Draw trail (using stored screen coordinates)
   for (let i = 0; i < trail.length; i++) {
     const t = trail[i];
-    const alpha = (i + 1) * trailFadeStep; // 0 → oldest, 1 → newest in trail
+    const alpha = (i + 1) * trailFadeStep;
     ctx.save();
-    ctx.globalAlpha = alpha * 0.6; // max opacity ~0.6 for the freshest trail part
-    ctx.translate(t.x - cameraX, t.y); // trail follows camera movement
+    ctx.globalAlpha = alpha * 0.6;
+    ctx.translate(t.x, t.y);
     ctx.rotate(t.rot);
     ctx.fillStyle = '#a0f';
     ctx.beginPath();
@@ -331,7 +334,7 @@ function draw() {
     ctx.restore();
   }
 
-  // ─── Current player (on top) ───
+  // Current player
   ctx.save();
   ctx.translate(player.x + 25, player.y + 20);
   ctx.rotate(player.vy * 0.08);
