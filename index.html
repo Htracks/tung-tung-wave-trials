@@ -17,6 +17,12 @@
 <body>
 <canvas id="c"></canvas>
 <img id="sahurImg" src="https://media.sketchfab.com/models/c1f78892ae1a42478d34143d6a0f70bc/thumbnails/2f64937e0efd4d5bbdf50aa5c9183a51/e716832ee8af4e3081b879d5d50293d6.jpeg" alt="TUNG TUNG TUNG SAHUR">
+
+<!-- Audio for tung tung tung sahur -->
+<audio id="sahurSound" preload="auto">
+  <source src="https://www.myinstants.com/media/sounds/tung-tung-sahur.mp3" type="audio/mpeg">
+</audio>
+
 <div id="mainMenu" class="screen" style="display:flex;">
   <h1>Tung Tung Wave Trials</h1>
   <p style="font-size:32px;margin:10px;color:#ff9933;">beta 3.2</p>
@@ -51,6 +57,7 @@
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const sahurImg = document.getElementById('sahurImg');
+const sahurAudio = document.getElementById('sahurSound');
 
 let currentLevel = 0;
 let cameraX = 0;
@@ -65,29 +72,26 @@ canvas.height = window.innerHeight;
 
 let player = { x:120, y:canvas.height - 0, size:38, vy:0 };
 
-// ─── Track any key being held ────────────────────────────────
+// Track any key being held
 const keys = new Set();
-
 window.addEventListener('keydown', e => {
-  // Prevent browser defaults (space scrolls, arrows, etc.)
   if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) {
     e.preventDefault();
   }
   keys.add(e.code);
 });
+window.addEventListener('keyup', e => keys.delete(e.code));
 
-window.addEventListener('keyup', e => {
-  keys.delete(e.code);
-});
-
-// Also support mouse & touch (same behavior)
+// Mouse & touch support
 canvas.addEventListener('mousedown', () => keys.add('Mouse'));
-canvas.addEventListener('mouseup',   () => keys.delete('Mouse'));
+canvas.addEventListener('mouseup', () => keys.delete('Mouse'));
 canvas.addEventListener('touchstart', e => { e.preventDefault(); keys.add('Touch'); });
-canvas.addEventListener('touchend',   () => keys.delete('Touch'));
+canvas.addEventListener('touchend', () => keys.delete('Touch'));
 
 let spikes = [];
 let saws = [];
+
+let lastSahurTime = 0;
 
 function loadLevel(lvl) {
   currentLevel = lvl;
@@ -100,12 +104,17 @@ function loadLevel(lvl) {
   document.getElementById('levelComplete').style.display = 'none';
   spikes = [];
   saws = [];
+  lastSahurTime = Date.now();
+
   let x = 500;
   const baseGap = 180 - lvl * 28;
   while (x < 6500) {
-    if (Math.random() < 0.85) spikes.push({x, y: canvas.height - 80, side: 'bottom'});
-    if (Math.random() < 0.7)  spikes.push({x: x + 60, y: 40, side: 'top'});
-    const sawCount = Math.floor(0.5 + lvl * 1.2 * difficulty);
+    // Only top spikes (bottom ones removed)
+    if (Math.random() < 0.7) {
+      spikes.push({x: x + 60, y: 40, side: 'top'});
+    }
+    // Half the saws
+    const sawCount = Math.floor(0.25 + lvl * 0.6 * difficulty);
     for (let i = 0; i < sawCount; i++) {
       let sy = 140 + Math.random() * (canvas.height - 300);
       saws.push({x: x + 40 + Math.random()*120, y: sy});
@@ -141,15 +150,10 @@ function nextLevel() {
 
 function restartLevel() { startLevel(currentLevel); }
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
 function update() {
   if (currentLevel === 0 || gameOver || levelWon) return;
 
-  // ─── This is the changed line ─────────────────────────────
   player.vy = (keys.size > 0) ? -10.5 : 7.1;
-
   player.y += player.vy;
 
   if (player.y < 40 || player.y > canvas.height - 90) gameOver = true;
@@ -157,11 +161,13 @@ function update() {
   cameraX += speed;
   score = Math.floor(cameraX / 10);
 
+  // Collision with top spikes only now
   for (let s of spikes) {
     let sx = s.x - cameraX;
     if (sx < -100 || sx > canvas.width + 100) continue;
-    if (s.side === 'bottom' && player.y + player.size > s.y && player.x + 30 > sx && player.x < sx + 50) gameOver = true;
-    if (s.side === 'top'   && player.y < s.y + 70 && player.x + 30 > sx && player.x < sx + 50) gameOver = true;
+    if (s.side === 'top' && player.y < s.y + 70 && player.x + 30 > sx && player.x < sx + 50) {
+      gameOver = true;
+    }
   }
 
   for (let s of saws) {
@@ -183,14 +189,25 @@ function update() {
     document.getElementById('levelComplete').style.display = 'flex';
     sahurImg.style.display = 'none';
   }
+
+  // Play tung tung tung sahur sound ~every 5 seconds during gameplay
+  const now = Date.now();
+  if (currentLevel > 0 && !gameOver && !levelWon && now - lastSahurTime > 5000) {
+    sahurAudio.currentTime = 0;
+    sahurAudio.play().catch(() => {}); // ignore autoplay block errors
+    lastSahurTime = now;
+  }
 }
 
 function draw() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
+  // Orange-ish gradient background
   let grad = ctx.createLinearGradient(0,0,0,canvas.height);
-  grad.addColorStop(0,'#0a001f'); grad.addColorStop(1,'#000011');
-  ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+  grad.addColorStop(0, '#ff5500');
+  grad.addColorStop(1, '#330000');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
   ctx.fillStyle = '#222';
   ctx.fillRect(0, canvas.height-30, canvas.width, 30);
@@ -200,11 +217,12 @@ function draw() {
   for (let s of spikes) {
     let sx = s.x - cameraX;
     if (sx > -50 && sx < canvas.width + 50) {
-      if (s.side === 'bottom') {
-        ctx.beginPath(); ctx.moveTo(sx+25, s.y); ctx.lineTo(sx, s.y+70); ctx.lineTo(sx+50, s.y+70); ctx.fill();
-      } else {
-        ctx.beginPath(); ctx.moveTo(sx+25, s.y+70); ctx.lineTo(sx, s.y); ctx.lineTo(sx+50, s.y); ctx.fill();
-      }
+      // Only top spikes are drawn anyway
+      ctx.beginPath();
+      ctx.moveTo(sx+25, s.y+70);
+      ctx.lineTo(sx, s.y);
+      ctx.lineTo(sx+50, s.y);
+      ctx.fill();
     }
   }
 
@@ -236,7 +254,11 @@ function draw() {
   document.getElementById('score').textContent = score;
 }
 
-function loop() { update(); draw(); requestAnimationFrame(loop); }
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
 loop();
 
 window.addEventListener('resize', () => {
