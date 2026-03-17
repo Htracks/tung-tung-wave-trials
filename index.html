@@ -9,24 +9,21 @@
   .screen { position:absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.92); z-index:30; text-align:center; }
   .screen h1 { font-size:72px; margin:0; text-shadow:0 0 30px #ff9933; }
   button { font-size:32px; padding:18px 50px; margin:20px; background:#111; color:#ff9933; border:5px solid #ff9933; cursor:pointer; }
-  button:hover { background:#ff9933; color:#ff9933; }
+  button:hover { background:#ff9933; color:#111; }
   #sahurImg { position:absolute; right:30px; top:120px; width:190px; z-index:15; border:6px solid #ff9933; box-shadow:0 0 30px #ff9933; display:none; }
   #ui { position:absolute; top:15px; left:15px; font-size:26px; pointer-events:none; z-index:10; text-shadow:0 0 10px #ff9933; }
 </style>
 </head>
 <body>
-
 <canvas id="c"></canvas>
 <img id="sahurImg" src="https://media.sketchfab.com/models/c1f78892ae1a42478d34143d6a0f70bc/thumbnails/2f64937e0efd4d5bbdf50aa5c9183a51/e716832ee8af4e3081b879d5d50293d6.jpeg" alt="TUNG TUNG TUNG SAHUR">
-
 <div id="mainMenu" class="screen" style="display:flex;">
   <h1>Tung Tung Wave Trials</h1>
   <p style="font-size:32px;margin:10px;color:#ff9933;">beta 3.2</p>
   <button onclick="showLevelSelect()">Start Game</button>
-  <button onclick="alert('Hold Click/Space to go up, release to go down')">How to play</button>
+  <button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
   <button onclick="alert('Made by Henry C (and grok)')">Credits</button>
 </div>
-
 <div id="levelSelect" class="screen">
   <h1>CHOOSE TRIAL</h1>
   <button onclick="startLevel(1)">1 - Warm Up (very few saws)</button>
@@ -36,40 +33,58 @@
   <button onclick="startLevel(5)">5 - SAHUR SAW BOSS</button>
   <button onclick="showMainMenu()">BACK</button>
 </div>
-
 <div id="levelComplete" class="screen" style="color:#ff9933;">
   <h1>LEVEL COMPLETE! 🎉</h1>
   <p style="font-size:36px;">Score: <span id="finalScore">0</span></p>
   <button onclick="nextLevel()">NEXT TRIAL</button>
   <button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
-
 <div id="restart" class="screen" style="color:#f00; background:rgba(20,0,0,0.95);">
   <h1>YOU GOT LOSE</h1>
   <p style="font-size:32px;">Score: <span id="deathScore">0</span></p>
   <button onclick="restartLevel()">TRY AGAIN</button>
   <button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
-
 <div id="ui">Level <span id="levelNum">1</span> | Score: <span id="score">0</span></div>
 
 <script>
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const sahurImg = document.getElementById('sahurImg');
-let currentLevel = 0; // 0 = not started
+
+let currentLevel = 0;
 let cameraX = 0;
 let score = 0;
 let gameOver = false;
 let levelWon = false;
-let holdingJump = false;
 let speed = 4.2;
 const difficulty = 1;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let player = { x:120, y:canvas.height - 0, size:38, vy:0 }; // safe start low
+let player = { x:120, y:canvas.height - 0, size:38, vy:0 };
+
+// ─── Track any key being held ────────────────────────────────
+const keys = new Set();
+
+window.addEventListener('keydown', e => {
+  // Prevent browser defaults (space scrolls, arrows, etc.)
+  if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) {
+    e.preventDefault();
+  }
+  keys.add(e.code);
+});
+
+window.addEventListener('keyup', e => {
+  keys.delete(e.code);
+});
+
+// Also support mouse & touch (same behavior)
+canvas.addEventListener('mousedown', () => keys.add('Mouse'));
+canvas.addEventListener('mouseup',   () => keys.delete('Mouse'));
+canvas.addEventListener('touchstart', e => { e.preventDefault(); keys.add('Touch'); });
+canvas.addEventListener('touchend',   () => keys.delete('Touch'));
 
 let spikes = [];
 let saws = [];
@@ -78,29 +93,23 @@ function loadLevel(lvl) {
   currentLevel = lvl;
   speed = 3.8 + lvl * 0.5;
   cameraX = 0; score = 0;
-  player.y = canvas.height - 500; player.vy = 0; // reset safe
+  player.y = canvas.height - 500; player.vy = 0;
   gameOver = false; levelWon = false;
   document.getElementById('levelNum').textContent = lvl;
   document.getElementById('restart').style.display = 'none';
   document.getElementById('levelComplete').style.display = 'none';
-
   spikes = [];
   saws = [];
-  let x = 500; // longer safe zone at start
-  const baseGap = 180 - lvl * 28; // level 1: ~152px, level 5: ~40px
-
+  let x = 500;
+  const baseGap = 180 - lvl * 28;
   while (x < 6500) {
-    // top + bottom spikes
     if (Math.random() < 0.85) spikes.push({x, y: canvas.height - 80, side: 'bottom'});
-    if (Math.random() < 0.7) spikes.push({x: x + 60, y: 40, side: 'top'});
-
-    // floating saws - VERY few on lvl 1, ramps up
-    const sawCount = Math.floor(0.5 + lvl * 1.2 * difficulty); // lvl1 ≈0-1, lvl5 ≈6-7 per cluster
+    if (Math.random() < 0.7)  spikes.push({x: x + 60, y: 40, side: 'top'});
+    const sawCount = Math.floor(0.5 + lvl * 1.2 * difficulty);
     for (let i = 0; i < sawCount; i++) {
       let sy = 140 + Math.random() * (canvas.height - 300);
       saws.push({x: x + 40 + Math.random()*120, y: sy});
     }
-
     x += Math.max(50, baseGap + Math.random()*40 - 20);
   }
 }
@@ -109,38 +118,38 @@ function showMainMenu() {
   document.getElementById('mainMenu').style.display = 'flex';
   document.getElementById('levelSelect').style.display = 'none';
   sahurImg.style.display = 'none';
-  currentLevel = 0; // reset
+  currentLevel = 0;
 }
+
 function showLevelSelect() {
   document.getElementById('mainMenu').style.display = 'none';
   document.getElementById('levelSelect').style.display = 'flex';
   sahurImg.style.display = 'none';
 }
+
 function startLevel(lvl) {
   loadLevel(lvl);
   document.getElementById('levelSelect').style.display = 'none';
   sahurImg.style.display = 'block';
 }
+
 function nextLevel() {
   let next = currentLevel + 1;
   if (next > 5) next = 1;
   startLevel(next);
 }
+
 function restartLevel() { startLevel(currentLevel); }
 
-function jump() { if (currentLevel > 0 && !gameOver && !levelWon) holdingJump = true; }
-
-canvas.addEventListener('mousedown', jump);
-canvas.addEventListener('mouseup', () => holdingJump = false);
-canvas.addEventListener('touchstart', e => { e.preventDefault(); jump(); });
-canvas.addEventListener('touchend', () => holdingJump = false);
-window.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); jump(); } });
-window.addEventListener('keyup', e => { if (e.code === 'Space') holdingJump = false; });
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 function update() {
   if (currentLevel === 0 || gameOver || levelWon) return;
 
-  player.vy = holdingJump ? -10.5 : 7.1;
+  // ─── This is the changed line ─────────────────────────────
+  player.vy = (keys.size > 0) ? -10.5 : 7.1;
+
   player.y += player.vy;
 
   if (player.y < 40 || player.y > canvas.height - 90) gameOver = true;
@@ -152,7 +161,7 @@ function update() {
     let sx = s.x - cameraX;
     if (sx < -100 || sx > canvas.width + 100) continue;
     if (s.side === 'bottom' && player.y + player.size > s.y && player.x + 30 > sx && player.x < sx + 50) gameOver = true;
-    if (s.side === 'top' && player.y < s.y + 70 && player.x + 30 > sx && player.x < sx + 50) gameOver = true;
+    if (s.side === 'top'   && player.y < s.y + 70 && player.x + 30 > sx && player.x < sx + 50) gameOver = true;
   }
 
   for (let s of saws) {
@@ -178,6 +187,7 @@ function update() {
 
 function draw() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
+
   let grad = ctx.createLinearGradient(0,0,0,canvas.height);
   grad.addColorStop(0,'#0a001f'); grad.addColorStop(1,'#000011');
   ctx.fillStyle = grad; ctx.fillRect(0,0,canvas.width,canvas.height);
