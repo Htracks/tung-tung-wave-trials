@@ -28,7 +28,7 @@
 
 <div id="mainMenu" class="screen" style="display:flex;">
   <h1>Tung Tung Wave Trials</h1>
-  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 7.3 - fixed wave trail</p>
+  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 7.4 - fixed wave trail</p>
   <div style="display:flex; flex-wrap:wrap; justify-content:center;">
     <button onclick="showLevelSelect()">Start Game</button>
     <button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
@@ -72,7 +72,6 @@ const ramadanAudio = document.getElementById('ramadanMusic');
 const ramadanBtn = document.getElementById('ramadanBtn');
 
 let currentLevel = 0;
-let cameraX = 0;
 let score = 0;
 let gameOver = false;
 let levelWon = false;
@@ -100,9 +99,9 @@ canvas.height = window.innerHeight;
 
 let player = { x: 120, y: canvas.height / 2, size: 38, vy: 0 };
 
-// Trail – now stored in WORLD coordinates
+// Trail – world coordinates (now same as screen since no camera scroll)
 let trail = [];
-const maxTrailLength = 32;          // longer trail looks better in scrolling context
+const maxTrailLength = 32;
 const trailFadeStep = 1 / maxTrailLength;
 
 const keys = new Set();
@@ -138,9 +137,12 @@ function toggleRamadanMode() {
 function loadLevel(lvl) {
   currentLevel = lvl;
   speed = 3.8 + lvl * 0.5;
-  cameraX = 0; score = 0;
-  player.y = canvas.height - 500; player.vy = 0;
-  gameOver = false; levelWon = false;
+  player.x = 120;
+  player.y = canvas.height - 500;
+  player.vy = 0;
+  score = 0;
+  gameOver = false;
+  levelWon = false;
   trail.length = 0;
   document.getElementById('levelNum').textContent = lvl;
   document.getElementById('restart').style.display = 'none';
@@ -197,32 +199,32 @@ function update() {
 
   player.vy = (keys.size > 0) ? -10.5 : 7.1;
   player.y += player.vy;
+  player.x += speed;   // Player moves right automatically
 
   if (player.y < 40 || player.y > canvas.height - 90) gameOver = true;
 
-  cameraX += speed;
-  score = Math.floor(cameraX / 10);
+  score = Math.floor(player.x / 10);
 
-  // Store WORLD coordinates for trail
+  // Trail
   trail.push({
     x: player.x + 25,
     y: player.y + 20,
     rot: player.vy * 0.08
   });
-
   if (trail.length > maxTrailLength) trail.shift();
 
+  // Collisions – no camera offset needed anymore
   for (let s of spikes) {
-    let sx = s.x - cameraX;
-    if (sx < -100 || sx > canvas.width + 100) continue;
-    if (s.side === 'top' && player.y < s.y + 70 && player.x + 30 > sx && player.x < sx + 50) {
-      gameOver = true;
+    let distX = player.x + 30 - s.x;
+    if (distX > -50 && distX < 100) {  // rough culling
+      if (s.side === 'top' && player.y < s.y + 70 && player.x + 30 > s.x && player.x < s.x + 50) {
+        gameOver = true;
+      }
     }
   }
 
   for (let s of saws) {
-    let sx = s.x - cameraX;
-    let dx = (player.x + 19) - sx;
+    let dx = (player.x + 19) - s.x;
     let dy = (player.y + 19) - s.y;
     if (Math.sqrt(dx*dx + dy*dy) < 34) gameOver = true;
   }
@@ -236,7 +238,7 @@ function update() {
     trail.length = 0;
   }
 
-  if (cameraX > 5800) {
+  if (player.x > 5800 + 120) {  // adjusted for player start x
     levelWon = true;
     document.getElementById('finalScore').textContent = score;
     document.getElementById('levelComplete').style.display = 'flex';
@@ -292,12 +294,13 @@ function draw() {
 
   ctx.fillStyle = '#f33';
   for (let s of spikes) {
-    let sx = s.x - cameraX;
-    if (sx > -50 && sx < canvas.width + 50) {
+    if (s.x < player.x - canvas.width || s.x > player.x + canvas.width) continue;
+    let drawX = s.x - player.x + canvas.width / 2;  // center player on screen
+    if (drawX > -50 && drawX < canvas.width + 50) {
       ctx.beginPath();
-      ctx.moveTo(sx+25, s.y+70);
-      ctx.lineTo(sx, s.y);
-      ctx.lineTo(sx+50, s.y);
+      ctx.moveTo(drawX+25, s.y+70);
+      ctx.lineTo(drawX, s.y);
+      ctx.lineTo(drawX+50, s.y);
       ctx.fill();
     }
   }
@@ -306,10 +309,11 @@ function draw() {
   ctx.strokeStyle = '#f80';
   ctx.lineWidth = 4;
   for (let s of saws) {
-    let sx = s.x - cameraX;
-    if (sx > -60 && sx < canvas.width + 60) {
+    if (s.x < player.x - canvas.width || s.x > player.x + canvas.width) continue;
+    let drawX = s.x - player.x + canvas.width / 2;
+    if (drawX > -60 && drawX < canvas.width + 60) {
       ctx.save();
-      ctx.translate(sx, s.y);
+      ctx.translate(drawX, s.y);
       ctx.rotate(Date.now() / 80 % (Math.PI*2));
       ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI*2); ctx.fill();
       for (let i = 0; i < 12; i++) {
@@ -320,16 +324,16 @@ function draw() {
     }
   }
 
-  // Draw trail – now using world → screen conversion
+  // Trail (centered on player)
   for (let i = 0; i < trail.length; i++) {
     const t = trail[i];
-    const trailScreenX = t.x - cameraX;
-    if (trailScreenX < -100 || trailScreenX > canvas.width + 100) continue;
+    let drawX = t.x - player.x + canvas.width / 2;
+    if (drawX < -100 || drawX > canvas.width + 100) continue;
 
     const alpha = (i + 1) * trailFadeStep;
     ctx.save();
-    ctx.globalAlpha = alpha * 0.7;   // slightly stronger visibility
-    ctx.translate(trailScreenX, t.y);
+    ctx.globalAlpha = alpha * 0.7;
+    ctx.translate(drawX, t.y);
     ctx.rotate(t.rot);
     ctx.fillStyle = '#a0f';
     ctx.beginPath();
@@ -338,9 +342,9 @@ function draw() {
     ctx.restore();
   }
 
-  // Current player
+  // Player – always centered horizontally
   ctx.save();
-  ctx.translate(player.x + 25, player.y + 20);
+  ctx.translate(canvas.width / 2, player.y + 20);
   ctx.rotate(player.vy * 0.08);
   ctx.fillStyle = '#a0f';
   ctx.beginPath(); ctx.moveTo(32,0); ctx.lineTo(-22,-19); ctx.lineTo(-14,0); ctx.lineTo(-22,19); ctx.closePath(); ctx.fill();
