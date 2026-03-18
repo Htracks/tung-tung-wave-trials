@@ -12,6 +12,28 @@
   button:hover { background:#ff9933; color:#111; }
   #sahurImg { position:absolute; right:30px; top:120px; width:190px; z-index:15; border:6px solid #ff9933; box-shadow:0 0 30px #ff9933; display:none; }
   #ui { position:absolute; top:15px; left:15px; font-size:26px; pointer-events:none; z-index:10; text-shadow:0 0 10px #ff9933; }
+
+  /* Progress bar styling */
+  .progress-container {
+    width: 60%;
+    background: #222;
+    border: 4px solid #ff9933;
+    border-radius: 12px;
+    height: 40px;
+    margin: 20px auto;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff9933, #ff5500);
+    transition: width 0.3s ease;
+  }
+  .progress-text {
+    font-size: 36px;
+    margin: 10px;
+    color: #ff9933;
+  }
 </style>
 </head>
 <body>
@@ -28,7 +50,7 @@
 
 <div id="mainMenu" class="screen" style="display:flex;">
   <h1>Tung Tung Wave Trials</h1>
-  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 7.4 - fixed wave trail</p>
+  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 8 - added progress bar and minor bug fixes</p>
   <div style="display:flex; flex-wrap:wrap; justify-content:center;">
     <button onclick="showLevelSelect()">Start Game</button>
     <button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
@@ -49,19 +71,25 @@
 
 <div id="levelComplete" class="screen" style="color:#ff9933;">
   <h1>LEVEL COMPLETE! 🎉</h1>
-  <p style="font-size:36px;">Score: <span id="finalScore">0</span></p>
+  <div class="progress-container">
+    <div id="progressBar" class="progress-bar"></div>
+  </div>
+  <div id="progressText" class="progress-text">0%</div>
   <button onclick="nextLevel()">NEXT TRIAL</button>
-  <button onclick="showLevelSelect()">TRIAL SELECT</button>
+  <button onclick="location.reload()">RETURN TO MENU</button>
 </div>
 
 <div id="restart" class="screen" style="color:#f00; background:rgba(20,0,0,0.95);">
   <h1>YOU GOT TUNGGED</h1>
-  <p style="font-size:32px;">Score: <span id="deathScore">0</span></p>
+  <div class="progress-container">
+    <div id="deathProgressBar" class="progress-bar"></div>
+  </div>
+  <div id="deathProgressText" class="progress-text">0%</div>
   <button onclick="restartLevel()">TRY AGAIN</button>
-  <button onclick="showLevelSelect()">TRIAL SELECT</button>
+  <button onclick="location.reload()">RETURN TO MENU</button>
 </div>
 
-<div id="ui">Level <span id="levelNum">1</span> | Score: <span id="score">0</span></div>
+<div id="ui">Level <span id="levelNum">1</span> | Progress: <span id="score">0%</span></div>
 
 <script>
 const canvas = document.getElementById('c');
@@ -77,7 +105,6 @@ let gameOver = false;
 let levelWon = false;
 let speed = 4.2;
 const difficulty = 1;
-
 let isRamadanMode = false;
 
 const normalImgSrc = "https://media.sketchfab.com/models/c1f78892ae1a42478d34143d6a0f70bc/thumbnails/2f64937e0efd4d5bbdf50aa5c9183a51/e716832ee8af4e3081b879d5d50293d6.jpeg";
@@ -99,7 +126,6 @@ canvas.height = window.innerHeight;
 
 let player = { x: 120, y: canvas.height / 2, size: 38, vy: 0 };
 
-// Trail – world coordinates (now same as screen since no camera scroll)
 let trail = [];
 const maxTrailLength = 32;
 const trailFadeStep = 1 / maxTrailLength;
@@ -120,6 +146,31 @@ let spikes = [];
 let saws = [];
 
 let lastSoundTime = 0;
+
+const TARGET_DISTANCE = 5920; // 5800 + player start x
+
+function updateProgress() {
+  const progress = Math.min(100, Math.floor((player.x / TARGET_DISTANCE) * 100));
+  document.getElementById('score').textContent = progress + '%';
+
+  // In-game UI
+  const uiBar = document.getElementById('progressBar') || document.createElement('div');
+  uiBar.id = 'progressBar';
+  uiBar.style.width = progress + '%';
+  document.getElementById('ui').innerHTML = `Level <span id="levelNum">${currentLevel}</span> | Progress: <span id="score">${progress}%</span>`;
+
+  // Level complete screen
+  if (document.getElementById('progressBar')) {
+    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressText').textContent = progress + '%';
+  }
+
+  // Death screen
+  if (document.getElementById('deathProgressBar')) {
+    document.getElementById('deathProgressBar').style.width = progress + '%';
+    document.getElementById('deathProgressText').textContent = progress + '%';
+  }
+}
 
 function toggleRamadanMode() {
   isRamadanMode = !isRamadanMode;
@@ -164,6 +215,7 @@ function loadLevel(lvl) {
     }
     x += Math.max(50, baseGap + Math.random()*40 - 20);
   }
+  updateProgress();
 }
 
 function showMainMenu() {
@@ -199,13 +251,12 @@ function update() {
 
   player.vy = (keys.size > 0) ? -10.5 : 7.1;
   player.y += player.vy;
-  player.x += speed;   // Player moves right automatically
+  player.x += speed;
 
   if (player.y < 40 || player.y > canvas.height - 90) gameOver = true;
 
-  score = Math.floor(player.x / 10);
+  updateProgress();
 
-  // Trail
   trail.push({
     x: player.x + 25,
     y: player.y + 20,
@@ -213,10 +264,9 @@ function update() {
   });
   if (trail.length > maxTrailLength) trail.shift();
 
-  // Collisions – no camera offset needed anymore
   for (let s of spikes) {
     let distX = player.x + 30 - s.x;
-    if (distX > -50 && distX < 100) {  // rough culling
+    if (distX > -50 && distX < 100) {
       if (s.side === 'top' && player.y < s.y + 70 && player.x + 30 > s.x && player.x < s.x + 50) {
         gameOver = true;
       }
@@ -230,22 +280,24 @@ function update() {
   }
 
   if (gameOver) {
-    document.getElementById('deathScore').textContent = score;
+    document.getElementById('deathScore').textContent = Math.floor(player.x / 10);
     document.getElementById('restart').style.display = 'flex';
     sahurImg.style.display = 'none';
     sahurAudio.pause();
     ramadanAudio.pause();
     trail.length = 0;
+    updateProgress();
   }
 
-  if (player.x > 5800 + 120) {  // adjusted for player start x
+  if (player.x > TARGET_DISTANCE) {
     levelWon = true;
-    document.getElementById('finalScore').textContent = score;
+    document.getElementById('finalScore').textContent = Math.floor(player.x / 10);
     document.getElementById('levelComplete').style.display = 'flex';
     sahurImg.style.display = 'none';
     sahurAudio.pause();
     ramadanAudio.pause();
     trail.length = 0;
+    updateProgress();
   }
 
   const now = Date.now();
@@ -295,7 +347,7 @@ function draw() {
   ctx.fillStyle = '#f33';
   for (let s of spikes) {
     if (s.x < player.x - canvas.width || s.x > player.x + canvas.width) continue;
-    let drawX = s.x - player.x + canvas.width / 2;  // center player on screen
+    let drawX = s.x - player.x + canvas.width / 2;
     if (drawX > -50 && drawX < canvas.width + 50) {
       ctx.beginPath();
       ctx.moveTo(drawX+25, s.y+70);
@@ -324,12 +376,10 @@ function draw() {
     }
   }
 
-  // Trail (centered on player)
   for (let i = 0; i < trail.length; i++) {
     const t = trail[i];
     let drawX = t.x - player.x + canvas.width / 2;
     if (drawX < -100 || drawX > canvas.width + 100) continue;
-
     const alpha = (i + 1) * trailFadeStep;
     ctx.save();
     ctx.globalAlpha = alpha * 0.7;
@@ -342,7 +392,6 @@ function draw() {
     ctx.restore();
   }
 
-  // Player – always centered horizontally
   ctx.save();
   ctx.translate(canvas.width / 2, player.y + 20);
   ctx.rotate(player.vy * 0.08);
@@ -350,7 +399,7 @@ function draw() {
   ctx.beginPath(); ctx.moveTo(32,0); ctx.lineTo(-22,-19); ctx.lineTo(-14,0); ctx.lineTo(-22,19); ctx.closePath(); ctx.fill();
   ctx.restore();
 
-  document.getElementById('score').textContent = score;
+  // No need to update score text here anymore - handled in updateProgress()
 }
 
 function loop() {
