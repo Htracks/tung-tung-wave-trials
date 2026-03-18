@@ -50,7 +50,7 @@
 
 <div id="mainMenu" class="screen" style="display:flex;">
   <h1>Tung Tung Wave Trials</h1>
-  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 8 - added progress bar and minor bug fixes</p>
+  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 8.1 - progress bar fixes</p>
   <div style="display:flex; flex-wrap:wrap; justify-content:center;">
     <button onclick="showLevelSelect()">Start Game</button>
     <button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
@@ -72,24 +72,24 @@
 <div id="levelComplete" class="screen" style="color:#ff9933;">
   <h1>LEVEL COMPLETE! 🎉</h1>
   <div class="progress-container">
-    <div id="progressBar" class="progress-bar"></div>
+    <div id="progressBarComplete" class="progress-bar"></div>
   </div>
-  <div id="progressText" class="progress-text">0%</div>
+  <div id="progressTextComplete" class="progress-text">0%</div>
   <button onclick="nextLevel()">NEXT TRIAL</button>
-  <button onclick="location.reload()">RETURN TO MENU</button>
+  <button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
 
 <div id="restart" class="screen" style="color:#f00; background:rgba(20,0,0,0.95);">
   <h1>YOU GOT TUNGGED</h1>
   <div class="progress-container">
-    <div id="deathProgressBar" class="progress-bar"></div>
+    <div id="progressBarDeath" class="progress-bar"></div>
   </div>
-  <div id="deathProgressText" class="progress-text">0%</div>
+  <div id="progressTextDeath" class="progress-text">0%</div>
   <button onclick="restartLevel()">TRY AGAIN</button>
-  <button onclick="location.reload()">RETURN TO MENU</button>
+  <button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
 
-<div id="ui">Level <span id="levelNum">1</span> | Progress: <span id="score">0%</span></div>
+<div id="ui">Level <span id="levelNum">1</span> | Progress: <span id="progressTextUI">0%</span></div>
 
 <script>
 const canvas = document.getElementById('c');
@@ -100,7 +100,6 @@ const ramadanAudio = document.getElementById('ramadanMusic');
 const ramadanBtn = document.getElementById('ramadanBtn');
 
 let currentLevel = 0;
-let score = 0;
 let gameOver = false;
 let levelWon = false;
 let speed = 4.2;
@@ -147,28 +146,26 @@ let saws = [];
 
 let lastSoundTime = 0;
 
-const TARGET_DISTANCE = 5920; // 5800 + player start x
+const TARGET_DISTANCE = 5920; // win condition threshold
 
 function updateProgress() {
   const progress = Math.min(100, Math.floor((player.x / TARGET_DISTANCE) * 100));
-  document.getElementById('score').textContent = progress + '%';
+  document.getElementById('progressTextUI').textContent = progress + '%';
 
-  // In-game UI
-  const uiBar = document.getElementById('progressBar') || document.createElement('div');
-  uiBar.id = 'progressBar';
-  uiBar.style.width = progress + '%';
-  document.getElementById('ui').innerHTML = `Level <span id="levelNum">${currentLevel}</span> | Progress: <span id="score">${progress}%</span>`;
-
-  // Level complete screen
-  if (document.getElementById('progressBar')) {
-    document.getElementById('progressBar').style.width = progress + '%';
-    document.getElementById('progressText').textContent = progress + '%';
+  // Level complete
+  const barComplete = document.getElementById('progressBarComplete');
+  const textComplete = document.getElementById('progressTextComplete');
+  if (barComplete && textComplete) {
+    barComplete.style.width = progress + '%';
+    textComplete.textContent = progress + '%';
   }
 
   // Death screen
-  if (document.getElementById('deathProgressBar')) {
-    document.getElementById('deathProgressBar').style.width = progress + '%';
-    document.getElementById('deathProgressText').textContent = progress + '%';
+  const barDeath = document.getElementById('progressBarDeath');
+  const textDeath = document.getElementById('progressTextDeath');
+  if (barDeath && textDeath) {
+    barDeath.style.width = progress + '%';
+    textDeath.textContent = progress + '%';
   }
 }
 
@@ -191,7 +188,6 @@ function loadLevel(lvl) {
   player.x = 120;
   player.y = canvas.height - 500;
   player.vy = 0;
-  score = 0;
   gameOver = false;
   levelWon = false;
   trail.length = 0;
@@ -262,159 +258,4 @@ function update() {
     y: player.y + 20,
     rot: player.vy * 0.08
   });
-  if (trail.length > maxTrailLength) trail.shift();
-
-  for (let s of spikes) {
-    let distX = player.x + 30 - s.x;
-    if (distX > -50 && distX < 100) {
-      if (s.side === 'top' && player.y < s.y + 70 && player.x + 30 > s.x && player.x < s.x + 50) {
-        gameOver = true;
-      }
-    }
-  }
-
-  for (let s of saws) {
-    let dx = (player.x + 19) - s.x;
-    let dy = (player.y + 19) - s.y;
-    if (Math.sqrt(dx*dx + dy*dy) < 34) gameOver = true;
-  }
-
-  if (gameOver) {
-    document.getElementById('deathScore').textContent = Math.floor(player.x / 10);
-    document.getElementById('restart').style.display = 'flex';
-    sahurImg.style.display = 'none';
-    sahurAudio.pause();
-    ramadanAudio.pause();
-    trail.length = 0;
-    updateProgress();
-  }
-
-  if (player.x > TARGET_DISTANCE) {
-    levelWon = true;
-    document.getElementById('finalScore').textContent = Math.floor(player.x / 10);
-    document.getElementById('levelComplete').style.display = 'flex';
-    sahurImg.style.display = 'none';
-    sahurAudio.pause();
-    ramadanAudio.pause();
-    trail.length = 0;
-    updateProgress();
-  }
-
-  const now = Date.now();
-  if (currentLevel > 0 && !gameOver && !levelWon && now - lastSoundTime > 5500) {
-    if (isRamadanMode) {
-      ramadanAudio.currentTime = 0;
-      ramadanAudio.play().catch(() => {});
-    } else {
-      sahurAudio.currentTime = 0;
-      sahurAudio.play().catch(() => {});
-    }
-    lastSoundTime = now;
-  }
-}
-
-function draw() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  if (isRamadanMode && ramadanBgImg && ramadanBgImg.complete) {
-    const imgRatio = ramadanBgImg.width / ramadanBgImg.height;
-    const canvasRatio = canvas.width / canvas.height;
-    let drawWidth, drawHeight, offsetX, offsetY;
-    if (imgRatio > canvasRatio) {
-      drawHeight = canvas.height;
-      drawWidth = drawHeight * imgRatio;
-      offsetX = (canvas.width - drawWidth) / 2;
-      offsetY = 0;
-    } else {
-      drawWidth = canvas.width;
-      drawHeight = drawWidth / imgRatio;
-      offsetX = 0;
-      offsetY = (canvas.height - drawHeight) / 2;
-    }
-    ctx.drawImage(ramadanBgImg, offsetX, offsetY, drawWidth, drawHeight);
-  } else {
-    let grad = ctx.createLinearGradient(0,0,0,canvas.height);
-    grad.addColorStop(0, '#ff5500');
-    grad.addColorStop(1, '#330000');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-  }
-
-  ctx.fillStyle = '#222';
-  ctx.fillRect(0, canvas.height-30, canvas.width, 30);
-  ctx.fillRect(0, 0, canvas.width, 30);
-
-  ctx.fillStyle = '#f33';
-  for (let s of spikes) {
-    if (s.x < player.x - canvas.width || s.x > player.x + canvas.width) continue;
-    let drawX = s.x - player.x + canvas.width / 2;
-    if (drawX > -50 && drawX < canvas.width + 50) {
-      ctx.beginPath();
-      ctx.moveTo(drawX+25, s.y+70);
-      ctx.lineTo(drawX, s.y);
-      ctx.lineTo(drawX+50, s.y);
-      ctx.fill();
-    }
-  }
-
-  ctx.fillStyle = '#ccc';
-  ctx.strokeStyle = '#f80';
-  ctx.lineWidth = 4;
-  for (let s of saws) {
-    if (s.x < player.x - canvas.width || s.x > player.x + canvas.width) continue;
-    let drawX = s.x - player.x + canvas.width / 2;
-    if (drawX > -60 && drawX < canvas.width + 60) {
-      ctx.save();
-      ctx.translate(drawX, s.y);
-      ctx.rotate(Date.now() / 80 % (Math.PI*2));
-      ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI*2); ctx.fill();
-      for (let i = 0; i < 12; i++) {
-        ctx.rotate(Math.PI/6);
-        ctx.beginPath(); ctx.moveTo(22, -8); ctx.lineTo(38, 0); ctx.lineTo(22, 8); ctx.fill();
-      }
-      ctx.restore();
-    }
-  }
-
-  for (let i = 0; i < trail.length; i++) {
-    const t = trail[i];
-    let drawX = t.x - player.x + canvas.width / 2;
-    if (drawX < -100 || drawX > canvas.width + 100) continue;
-    const alpha = (i + 1) * trailFadeStep;
-    ctx.save();
-    ctx.globalAlpha = alpha * 0.7;
-    ctx.translate(drawX, t.y);
-    ctx.rotate(t.rot);
-    ctx.fillStyle = '#a0f';
-    ctx.beginPath();
-    ctx.moveTo(32,0); ctx.lineTo(-22,-19); ctx.lineTo(-14,0); ctx.lineTo(-22,19); ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-
-  ctx.save();
-  ctx.translate(canvas.width / 2, player.y + 20);
-  ctx.rotate(player.vy * 0.08);
-  ctx.fillStyle = '#a0f';
-  ctx.beginPath(); ctx.moveTo(32,0); ctx.lineTo(-22,-19); ctx.lineTo(-14,0); ctx.lineTo(-22,19); ctx.closePath(); ctx.fill();
-  ctx.restore();
-
-  // No need to update score text here anymore - handled in updateProgress()
-}
-
-function loop() {
-  update();
-  draw();
-  requestAnimationFrame(loop);
-}
-loop();
-
-window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
-
-showMainMenu();
-</script>
-</body>
-</html>
+  if (trail.length > max
