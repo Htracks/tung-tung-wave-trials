@@ -4,93 +4,58 @@
 <meta charset="UTF-8">
 <title>TUNG TUNG WAVE TRIALS</title>
 <style>
-  body { margin:0; background:#ff9933; overflow:hidden; font-family:Arial; color:#0f0; }
-  canvas { display:block; }
-  .screen { position:absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.92); z-index:30; text-align:center; }
-  .screen h1 { font-size:72px; margin:0; text-shadow:0 0 30px #ff9933; }
-  button { font-size:32px; padding:18px 50px; margin:20px; background:#111; color:#ff9933; border:5px solid #ff9933; cursor:pointer; }
-  button:hover { background:#ff9933; color:#111; }
-  #sahurImg { position:absolute; right:30px; top:120px; width:190px; z-index:15; border:6px solid #ff9933; box-shadow:0 0 30px #ff9933; display:none; }
-  #ui { position:absolute; top:15px; left:15px; font-size:26px; pointer-events:none; z-index:10; text-shadow:0 0 10px #ff9933; }
-
-  /* Progress bar styling */
-  .progress-container {
-    width: 60%;
-    background: #222;
-    border: 4px solid #ff9933;
-    border-radius: 12px;
-    height: 40px;
-    margin: 20px auto;
-    overflow: hidden;
-  }
-  .progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #ff9933, #ff5500);
-    transition: width 0.3s ease;
-  }
-  .progress-text {
-    font-size: 36px;
-    margin: 10px;
-    color: #ff9933;
-  }
+&nbsp;&nbsp;body { margin:0; background:#ff9933; overflow:hidden; font-family:Arial; color:#0f0; }
+&nbsp;&nbsp;canvas { display:block; }
+&nbsp;&nbsp;.screen { position:absolute; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.92); z-index:30; text-align:center; }
+&nbsp;&nbsp;.screen h1 { font-size:72px; margin:0; text-shadow:0 0 30px #ff9933; }
+&nbsp;&nbsp;button { font-size:32px; padding:18px 50px; margin:20px; background:#111; color:#ff9933; border:5px solid #ff9933; cursor:pointer; }
+&nbsp;&nbsp;button:hover { background:#ff9933; color:#111; }
+&nbsp;&nbsp;#sahurImg { position:absolute; right:30px; top:120px; width:190px; z-index:15; border:6px solid #ff9933; box-shadow:0 0 30px #ff9933; display:none; }
+&nbsp;&nbsp;#ui { position:absolute; top:15px; left:15px; font-size:26px; pointer-events:none; z-index:10; text-shadow:0 0 10px #ff9933; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <img id="sahurImg" src="https://media.sketchfab.com/models/c1f78892ae1a42478d34143d6a0f70bc/thumbnails/2f64937e0efd4d5bbdf50aa5c9183a51/e716832ee8af4e3081b879d5d50293d6.jpeg" alt="TUNG TUNG TUNG SAHUR">
-
 <!-- Sounds -->
 <audio id="sahurSound" preload="auto">
-  <source src="https://www.myinstants.com/media/sounds/tung-tung-sahur.mp3" type="audio/mpeg">
+&nbsp;&nbsp;<source src="https://www.myinstants.com/media/sounds/tung-tung-sahur.mp3" type="audio/mpeg">
 </audio>
 <audio id="ramadanMusic" preload="auto" loop>
-  <source src="https://cdn.pixabay.com/audio/2023/08/07/audio_3b8d4e3f5d.mp3" type="audio/mpeg">
+&nbsp;&nbsp;<source src="https://cdn.pixabay.com/audio/2023/08/07/audio_3b8d4e3f5d.mp3" type="audio/mpeg">
 </audio>
-
 <div id="mainMenu" class="screen" style="display:flex;">
-  <h1>Tung Tung Wave Trials</h1>
-  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 8.1 - progress bar fixes</p>
-  <div style="display:flex; flex-wrap:wrap; justify-content:center;">
-    <button onclick="showLevelSelect()">Start Game</button>
-    <button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
-    <button id="ramadanBtn" onclick="toggleRamadanMode()">Ramadan Mode</button>
-  </div>
-  <button onclick="alert('Made by Henry (and grok)')">Credits</button>
+&nbsp;&nbsp;<h1>Tung Tung Wave Trials</h1>
+&nbsp;&nbsp;<p style="font-size:32px;margin:10px;color:#ff9933;">beta 7.4 - fixed wave trail</p>
+&nbsp;&nbsp;<div style="display:flex; flex-wrap:wrap; justify-content:center;">
+&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="showLevelSelect()">Start Game</button>
+&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
+&nbsp;&nbsp;&nbsp;&nbsp;<button id="ramadanBtn" onclick="toggleRamadanMode()">Ramadan Mode</button>
+&nbsp;&nbsp;</div>
+&nbsp;&nbsp;<button onclick="alert('Made by Henry (and grok)')">Credits</button>
 </div>
-
 <div id="levelSelect" class="screen">
-  <h1>CHOOSE TRIAL</h1>
-  <button onclick="startLevel(1)">1 - Warm Up (very few saws)</button>
-  <button onclick="startLevel(2)">2 - Spike Rain</button>
-  <button onclick="startLevel(3)">3 - Narrow Hell</button>
-  <button onclick="startLevel(4)">4 - Double Trouble</button>
-  <button onclick="startLevel(5)">5 - SAHUR SAW BOSS</button>
-  <button onclick="showMainMenu()">BACK</button>
+&nbsp;&nbsp;<h1>CHOOSE TRIAL</h1>
+&nbsp;&nbsp;<button onclick="startLevel(1)">1 - Warm Up (very few saws)</button>
+&nbsp;&nbsp;<button onclick="startLevel(2)">2 - Spike Rain</button>
+&nbsp;&nbsp;<button onclick="startLevel(3)">3 - Narrow Hell</button>
+&nbsp;&nbsp;<button onclick="startLevel(4)">4 - Double Trouble</button>
+&nbsp;&nbsp;<button onclick="startLevel(5)">5 - SAHUR SAW BOSS</button>
+&nbsp;&nbsp;<button onclick="showMainMenu()">BACK</button>
 </div>
-
 <div id="levelComplete" class="screen" style="color:#ff9933;">
-  <h1>LEVEL COMPLETE! 🎉</h1>
-  <div class="progress-container">
-    <div id="progressBarComplete" class="progress-bar"></div>
-  </div>
-  <div id="progressTextComplete" class="progress-text">0%</div>
-  <button onclick="nextLevel()">NEXT TRIAL</button>
-  <button onclick="showLevelSelect()">TRIAL SELECT</button>
+&nbsp;&nbsp;<h1>LEVEL COMPLETE! 🎉</h1>
+&nbsp;&nbsp;<p style="font-size:36px;">Score: <span id="finalScore">0</span></p>
+&nbsp;&nbsp;<button onclick="nextLevel()">NEXT TRIAL</button>
+&nbsp;&nbsp;<button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
-
 <div id="restart" class="screen" style="color:#f00; background:rgba(20,0,0,0.95);">
-  <h1>YOU GOT TUNGGED</h1>
-  <div class="progress-container">
-    <div id="progressBarDeath" class="progress-bar"></div>
-  </div>
-  <div id="progressTextDeath" class="progress-text">0%</div>
-  <button onclick="restartLevel()">TRY AGAIN</button>
-  <button onclick="showLevelSelect()">TRIAL SELECT</button>
+&nbsp;&nbsp;<h1>YOU GOT TUNGGED</h1>
+&nbsp;&nbsp;<p style="font-size:32px;">Score: <span id="deathScore">0</span></p>
+&nbsp;&nbsp;<button onclick="restartLevel()">TRY AGAIN</button>
+&nbsp;&nbsp;<button onclick="showLevelSelect()">TRIAL SELECT</button>
 </div>
-
-<div id="ui">Level <span id="levelNum">1</span> | Progress: <span id="progressTextUI">0%</span></div>
-
+<div id="ui">Level <span id="levelNum">1</span> | Score: <span id="score">0</span></div>
 <script>
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
@@ -98,164 +63,260 @@ const sahurImg = document.getElementById('sahurImg');
 const sahurAudio = document.getElementById('sahurSound');
 const ramadanAudio = document.getElementById('ramadanMusic');
 const ramadanBtn = document.getElementById('ramadanBtn');
-
 let currentLevel = 0;
+let score = 0;
 let gameOver = false;
 let levelWon = false;
 let speed = 4.2;
 const difficulty = 1;
 let isRamadanMode = false;
-
 const normalImgSrc = "https://media.sketchfab.com/models/c1f78892ae1a42478d34143d6a0f70bc/thumbnails/2f64937e0efd4d5bbdf50aa5c9183a51/e716832ee8af4e3081b879d5d50293d6.jpeg";
 const ramadanImgSrc = "https://tse1.mm.bing.net/th/id/OIP.u-38KvyZ91TfJxcr4NFSHAHaFY?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3";
 const ramadanBgSrc = "https://tse1.mm.bing.net/th/id/OIP.u-38KvyZ91TfJxcr4NFSHAHaFY?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3";
-
 let ramadanBgImg = null;
-
 function loadRamadanBg() {
-  if (!ramadanBgImg) {
-    ramadanBgImg = new Image();
-    ramadanBgImg.crossOrigin = "anonymous";
-    ramadanBgImg.src = ramadanBgSrc;
-  }
+&nbsp;&nbsp;if (!ramadanBgImg) {
+&nbsp;&nbsp;&nbsp;&nbsp;ramadanBgImg = new Image();
+&nbsp;&nbsp;&nbsp;&nbsp;ramadanBgImg.crossOrigin = "anonymous";
+&nbsp;&nbsp;&nbsp;&nbsp;ramadanBgImg.src = ramadanBgSrc;
+&nbsp;&nbsp;}
 }
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-
 let player = { x: 120, y: canvas.height / 2, size: 38, vy: 0 };
-
+// Trail – world coordinates (now same as screen since no camera scroll)
 let trail = [];
 const maxTrailLength = 32;
 const trailFadeStep = 1 / maxTrailLength;
-
 const keys = new Set();
 window.addEventListener('keydown', e => {
-  if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
-  keys.add(e.code);
+&nbsp;&nbsp;if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+&nbsp;&nbsp;keys.add(e.code);
 });
 window.addEventListener('keyup', e => keys.delete(e.code));
-
 canvas.addEventListener('mousedown', () => keys.add('Mouse'));
 canvas.addEventListener('mouseup', () => keys.delete('Mouse'));
 canvas.addEventListener('touchstart', e => { e.preventDefault(); keys.add('Touch'); });
 canvas.addEventListener('touchend', () => keys.delete('Touch'));
-
 let spikes = [];
 let saws = [];
-
 let lastSoundTime = 0;
-
-const TARGET_DISTANCE = 5920; // win condition threshold
-
-function updateProgress() {
-  const progress = Math.min(100, Math.floor((player.x / TARGET_DISTANCE) * 100));
-  document.getElementById('progressTextUI').textContent = progress + '%';
-
-  // Level complete
-  const barComplete = document.getElementById('progressBarComplete');
-  const textComplete = document.getElementById('progressTextComplete');
-  if (barComplete && textComplete) {
-    barComplete.style.width = progress + '%';
-    textComplete.textContent = progress + '%';
-  }
-
-  // Death screen
-  const barDeath = document.getElementById('progressBarDeath');
-  const textDeath = document.getElementById('progressTextDeath');
-  if (barDeath && textDeath) {
-    barDeath.style.width = progress + '%';
-    textDeath.textContent = progress + '%';
-  }
-}
-
 function toggleRamadanMode() {
-  isRamadanMode = !isRamadanMode;
-  ramadanBtn.textContent = isRamadanMode ? "Ramadan Mode ON" : "Ramadan Mode";
-  if (isRamadanMode) {
-    sahurImg.src = ramadanImgSrc;
-    loadRamadanBg();
-  } else {
-    sahurImg.src = normalImgSrc;
-  }
-  sahurAudio.pause();
-  ramadanAudio.pause();
+&nbsp;&nbsp;isRamadanMode = !isRamadanMode;
+&nbsp;&nbsp;ramadanBtn.textContent = isRamadanMode ? "Ramadan Mode ON" : "Ramadan Mode";
+&nbsp;&nbsp;if (isRamadanMode) {
+&nbsp;&nbsp;&nbsp;&nbsp;sahurImg.src = ramadanImgSrc;
+&nbsp;&nbsp;&nbsp;&nbsp;loadRamadanBg();
+&nbsp;&nbsp;} else {
+&nbsp;&nbsp;&nbsp;&nbsp;sahurImg.src = normalImgSrc;
+&nbsp;&nbsp;}
+&nbsp;&nbsp;sahurAudio.pause();
+&nbsp;&nbsp;ramadanAudio.pause();
 }
-
 function loadLevel(lvl) {
-  currentLevel = lvl;
-  speed = 3.8 + lvl * 0.5;
-  player.x = 120;
-  player.y = canvas.height - 500;
-  player.vy = 0;
-  gameOver = false;
-  levelWon = false;
-  trail.length = 0;
-  document.getElementById('levelNum').textContent = lvl;
-  document.getElementById('restart').style.display = 'none';
-  document.getElementById('levelComplete').style.display = 'none';
-  spikes = [];
-  saws = [];
-  lastSoundTime = Date.now();
-
-  let x = 500;
-  const baseGap = 180 - lvl * 28;
-  while (x < 6500) {
-    if (Math.random() < 0.7) {
-      spikes.push({x: x + 60, y: 40, side: 'top'});
-    }
-    const sawCount = Math.floor(0.25 + lvl * 0.6 * difficulty);
-    for (let i = 0; i < sawCount; i++) {
-      let sy = 140 + Math.random() * (canvas.height - 300);
-      saws.push({x: x + 40 + Math.random()*120, y: sy});
-    }
-    x += Math.max(50, baseGap + Math.random()*40 - 20);
-  }
-  updateProgress();
+&nbsp;&nbsp;currentLevel = lvl;
+&nbsp;&nbsp;speed = 3.8 + lvl * 0.5;
+&nbsp;&nbsp;player.x = 120;
+&nbsp;&nbsp;player.y = canvas.height - 500;
+&nbsp;&nbsp;player.vy = 0;
+&nbsp;&nbsp;score = 0;
+&nbsp;&nbsp;gameOver = false;
+&nbsp;&nbsp;levelWon = false;
+&nbsp;&nbsp;trail.length = 0;
+&nbsp;&nbsp;document.getElementById('levelNum').textContent = lvl;
+&nbsp;&nbsp;document.getElementById('restart').style.display = 'none';
+&nbsp;&nbsp;document.getElementById('levelComplete').style.display = 'none';
+&nbsp;&nbsp;spikes = [];
+&nbsp;&nbsp;saws = [];
+&nbsp;&nbsp;lastSoundTime = Date.now();
+&nbsp;&nbsp;let x = 500;
+&nbsp;&nbsp;const baseGap = 180 - lvl * 28;
+&nbsp;&nbsp;while (x < 6500) {
+&nbsp;&nbsp;&nbsp;&nbsp;if (Math.random() < 0.7) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spikes.push({x: x + 60, y: 40, side: 'top'});
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;const sawCount = Math.floor(0.25 + lvl * 0.6 * difficulty);
+&nbsp;&nbsp;&nbsp;&nbsp;for (let i = 0; i < sawCount; i++) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let sy = 140 + Math.random() * (canvas.height - 300);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;saws.push({x: x + 40 + Math.random()*120, y: sy});
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;x += Math.max(50, baseGap + Math.random()*40 - 20);
+&nbsp;&nbsp;}
 }
-
 function showMainMenu() {
-  document.getElementById('mainMenu').style.display = 'flex';
-  document.getElementById('levelSelect').style.display = 'none';
-  sahurImg.style.display = 'none';
-  currentLevel = 0;
+&nbsp;&nbsp;document.getElementById('mainMenu').style.display = 'flex';
+&nbsp;&nbsp;document.getElementById('levelSelect').style.display = 'none';
+&nbsp;&nbsp;sahurImg.style.display = 'none';
+&nbsp;&nbsp;currentLevel = 0;
 }
-
 function showLevelSelect() {
-  document.getElementById('mainMenu').style.display = 'none';
-  document.getElementById('levelSelect').style.display = 'flex';
-  sahurImg.style.display = 'none';
+&nbsp;&nbsp;document.getElementById('mainMenu').style.display = 'none';
+&nbsp;&nbsp;document.getElementById('levelSelect').style.display = 'flex';
+&nbsp;&nbsp;sahurImg.style.display = 'none';
 }
-
 function startLevel(lvl) {
-  loadLevel(lvl);
-  document.getElementById('levelSelect').style.display = 'none';
-  sahurImg.style.display = 'block';
-  if (isRamadanMode) loadRamadanBg();
+&nbsp;&nbsp;loadLevel(lvl);
+&nbsp;&nbsp;document.getElementById('levelSelect').style.display = 'none';
+&nbsp;&nbsp;sahurImg.style.display = 'block';
+&nbsp;&nbsp;if (isRamadanMode) loadRamadanBg();
 }
-
 function nextLevel() {
-  let next = currentLevel + 1;
-  if (next > 5) next = 1;
-  startLevel(next);
+&nbsp;&nbsp;let next = currentLevel + 1;
+&nbsp;&nbsp;if (next > 5) next = 1;
+&nbsp;&nbsp;startLevel(next);
 }
-
 function restartLevel() { startLevel(currentLevel); }
-
 function update() {
-  if (currentLevel === 0 || gameOver || levelWon) return;
-
-  player.vy = (keys.size > 0) ? -10.5 : 7.1;
-  player.y += player.vy;
-  player.x += speed;
-
-  if (player.y < 40 || player.y > canvas.height - 90) gameOver = true;
-
-  updateProgress();
-
-  trail.push({
-    x: player.x + 25,
-    y: player.y + 20,
-    rot: player.vy * 0.08
-  });
-  if (trail.length > max
+&nbsp;&nbsp;if (currentLevel === 0 || gameOver || levelWon) return;
+&nbsp;&nbsp;player.vy = (keys.size > 0) ? -10.5 : 7.1;
+&nbsp;&nbsp;player.y += player.vy;
+&nbsp;&nbsp;player.x += speed; // Player moves right automatically
+&nbsp;&nbsp;if (player.y < 40 || player.y > canvas.height - 90) gameOver = true;
+&nbsp;&nbsp;score = Math.floor(player.x / 10);
+&nbsp;&nbsp;// Trail
+&nbsp;&nbsp;trail.push({
+&nbsp;&nbsp;&nbsp;&nbsp;x: player.x + 25,
+&nbsp;&nbsp;&nbsp;&nbsp;y: player.y + 20,
+&nbsp;&nbsp;&nbsp;&nbsp;rot: player.vy * 0.08
+&nbsp;&nbsp;});
+&nbsp;&nbsp;if (trail.length > maxTrailLength) trail.shift();
+&nbsp;&nbsp;// Collisions – no camera offset needed anymore
+&nbsp;&nbsp;for (let s of spikes) {
+&nbsp;&nbsp;&nbsp;&nbsp;let distX = player.x + 30 - s.x;
+&nbsp;&nbsp;&nbsp;&nbsp;if (distX > -50 && distX < 100) { // rough culling
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (s.side === 'top' && player.y < s.y + 70 && player.x + 30 > s.x && player.x < s.x + 50) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gameOver = true;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;}
+&nbsp;&nbsp;for (let s of saws) {
+&nbsp;&nbsp;&nbsp;&nbsp;let dx = (player.x + 19) - s.x;
+&nbsp;&nbsp;&nbsp;&nbsp;let dy = (player.y + 19) - s.y;
+&nbsp;&nbsp;&nbsp;&nbsp;if (Math.sqrt(dx*dx + dy*dy) < 34) gameOver = true;
+&nbsp;&nbsp;}
+&nbsp;&nbsp;if (gameOver) {
+&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById('deathScore').textContent = score;
+&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById('restart').style.display = 'flex';
+&nbsp;&nbsp;&nbsp;&nbsp;sahurImg.style.display = 'none';
+&nbsp;&nbsp;&nbsp;&nbsp;sahurAudio.pause();
+&nbsp;&nbsp;&nbsp;&nbsp;ramadanAudio.pause();
+&nbsp;&nbsp;&nbsp;&nbsp;trail.length = 0;
+&nbsp;&nbsp;}
+&nbsp;&nbsp;if (player.x > 5800 + 120) { // adjusted for player start x
+&nbsp;&nbsp;&nbsp;&nbsp;levelWon = true;
+&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById('finalScore').textContent = score;
+&nbsp;&nbsp;&nbsp;&nbsp;document.getElementById('levelComplete').style.display = 'flex';
+&nbsp;&nbsp;&nbsp;&nbsp;sahurImg.style.display = 'none';
+&nbsp;&nbsp;&nbsp;&nbsp;sahurAudio.pause();
+&nbsp;&nbsp;&nbsp;&nbsp;ramadanAudio.pause();
+&nbsp;&nbsp;&nbsp;&nbsp;trail.length = 0;
+&nbsp;&nbsp;}
+&nbsp;&nbsp;const now = Date.now();
+&nbsp;&nbsp;if (currentLevel > 0 && !gameOver && !levelWon && now - lastSoundTime > 5500) {
+&nbsp;&nbsp;&nbsp;&nbsp;if (isRamadanMode) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ramadanAudio.currentTime = 0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ramadanAudio.play().catch(() => {});
+&nbsp;&nbsp;&nbsp;&nbsp;} else {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sahurAudio.currentTime = 0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sahurAudio.play().catch(() => {});
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;lastSoundTime = now;
+&nbsp;&nbsp;}
+}
+function draw() {
+&nbsp;&nbsp;ctx.clearRect(0,0,canvas.width,canvas.height);
+&nbsp;&nbsp;if (isRamadanMode && ramadanBgImg && ramadanBgImg.complete) {
+&nbsp;&nbsp;&nbsp;&nbsp;const imgRatio = ramadanBgImg.width / ramadanBgImg.height;
+&nbsp;&nbsp;&nbsp;&nbsp;const canvasRatio = canvas.width / canvas.height;
+&nbsp;&nbsp;&nbsp;&nbsp;let drawWidth, drawHeight, offsetX, offsetY;
+&nbsp;&nbsp;&nbsp;&nbsp;if (imgRatio > canvasRatio) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drawHeight = canvas.height;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drawWidth = drawHeight * imgRatio;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;offsetX = (canvas.width - drawWidth) / 2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;offsetY = 0;
+&nbsp;&nbsp;&nbsp;&nbsp;} else {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drawWidth = canvas.width;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drawHeight = drawWidth / imgRatio;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;offsetX = 0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;offsetY = (canvas.height - drawHeight) / 2;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.drawImage(ramadanBgImg, offsetX, offsetY, drawWidth, drawHeight);
+&nbsp;&nbsp;} else {
+&nbsp;&nbsp;&nbsp;&nbsp;let grad = ctx.createLinearGradient(0,0,0,canvas.height);
+&nbsp;&nbsp;&nbsp;&nbsp;grad.addColorStop(0, '#ff5500');
+&nbsp;&nbsp;&nbsp;&nbsp;grad.addColorStop(1, '#330000');
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.fillStyle = grad;
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.fillRect(0,0,canvas.width,canvas.height);
+&nbsp;&nbsp;}
+&nbsp;&nbsp;ctx.fillStyle = '#222';
+&nbsp;&nbsp;ctx.fillRect(0, canvas.height-30, canvas.width, 30);
+&nbsp;&nbsp;ctx.fillRect(0, 0, canvas.width, 30);
+&nbsp;&nbsp;ctx.fillStyle = '#f33';
+&nbsp;&nbsp;for (let s of spikes) {
+&nbsp;&nbsp;&nbsp;&nbsp;if (s.x < player.x - canvas.width || s.x > player.x + canvas.width) continue;
+&nbsp;&nbsp;&nbsp;&nbsp;let drawX = s.x - player.x + canvas.width / 2; // center player on screen
+&nbsp;&nbsp;&nbsp;&nbsp;if (drawX > -50 && drawX < canvas.width + 50) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.beginPath();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.moveTo(drawX+25, s.y+70);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.lineTo(drawX, s.y);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.lineTo(drawX+50, s.y);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.fill();
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;}
+&nbsp;&nbsp;ctx.fillStyle = '#ccc';
+&nbsp;&nbsp;ctx.strokeStyle = '#f80';
+&nbsp;&nbsp;ctx.lineWidth = 4;
+&nbsp;&nbsp;for (let s of saws) {
+&nbsp;&nbsp;&nbsp;&nbsp;if (s.x < player.x - canvas.width || s.x > player.x + canvas.width) continue;
+&nbsp;&nbsp;&nbsp;&nbsp;let drawX = s.x - player.x + canvas.width / 2;
+&nbsp;&nbsp;&nbsp;&nbsp;if (drawX > -60 && drawX < canvas.width + 60) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.save();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.translate(drawX, s.y);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.rotate(Date.now() / 80 % (Math.PI*2));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI*2); ctx.fill();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (let i = 0; i < 12; i++) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.rotate(Math.PI/6);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.beginPath(); ctx.moveTo(22, -8); ctx.lineTo(38, 0); ctx.lineTo(22, 8); ctx.fill();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.restore();
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;}
+&nbsp;&nbsp;// Trail (centered on player)
+&nbsp;&nbsp;for (let i = 0; i < trail.length; i++) {
+&nbsp;&nbsp;&nbsp;&nbsp;const t = trail[i];
+&nbsp;&nbsp;&nbsp;&nbsp;let drawX = t.x - player.x + canvas.width / 2;
+&nbsp;&nbsp;&nbsp;&nbsp;if (drawX < -100 || drawX > canvas.width + 100) continue;
+&nbsp;&nbsp;&nbsp;&nbsp;const alpha = (i + 1) * trailFadeStep;
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.save();
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.globalAlpha = alpha * 0.7;
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.translate(drawX, t.y);
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.rotate(t.rot);
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.fillStyle = '#a0f';
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.beginPath();
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.moveTo(32,0); ctx.lineTo(-22,-19); ctx.lineTo(-14,0); ctx.lineTo(-22,19); ctx.closePath();
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.fill();
+&nbsp;&nbsp;&nbsp;&nbsp;ctx.restore();
+&nbsp;&nbsp;}
+&nbsp;&nbsp;// Player – always centered horizontally
+&nbsp;&nbsp;ctx.save();
+&nbsp;&nbsp;ctx.translate(canvas.width / 2, player.y + 20);
+&nbsp;&nbsp;ctx.rotate(player.vy * 0.08);
+&nbsp;&nbsp;ctx.fillStyle = '#a0f';
+&nbsp;&nbsp;ctx.beginPath(); ctx.moveTo(32,0); ctx.lineTo(-22,-19); ctx.lineTo(-14,0); ctx.lineTo(-22,19); ctx.closePath(); ctx.fill();
+&nbsp;&nbsp;ctx.restore();
+&nbsp;&nbsp;document.getElementById('score').textContent = score;
+}
+function loop() {
+&nbsp;&nbsp;update();
+&nbsp;&nbsp;draw();
+&nbsp;&nbsp;requestAnimationFrame(loop);
+}
+loop();
+window.addEventListener('resize', () => {
+&nbsp;&nbsp;canvas.width = window.innerWidth;
+&nbsp;&nbsp;canvas.height = window.innerHeight;
+});
+showMainMenu();
+</script>
+</body>
+</html>
