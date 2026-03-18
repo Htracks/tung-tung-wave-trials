@@ -28,7 +28,7 @@
 
 <div id="mainMenu" class="screen" style="display:flex;">
   <h1>Tung Tung Wave Trials</h1>
-  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 7.2 - fixed ramadan image</p>
+  <p style="font-size:32px;margin:10px;color:#ff9933;">beta 7.3 - fixed wave trail</p>
   <div style="display:flex; flex-wrap:wrap; justify-content:center;">
     <button onclick="showLevelSelect()">Start Game</button>
     <button onclick="alert('Hold ANY key / click / touch to go up, release to go down')">How to play</button>
@@ -100,9 +100,9 @@ canvas.height = window.innerHeight;
 
 let player = { x: 120, y: canvas.height / 2, size: 38, vy: 0 };
 
-// Trail (now stored in SCREEN coordinates)
+// Trail – now stored in WORLD coordinates
 let trail = [];
-const maxTrailLength = 24;
+const maxTrailLength = 32;          // longer trail looks better in scrolling context
 const trailFadeStep = 1 / maxTrailLength;
 
 const keys = new Set();
@@ -203,11 +203,13 @@ function update() {
   cameraX += speed;
   score = Math.floor(cameraX / 10);
 
-  // Store SCREEN coordinates for the trail
-  const screenX = player.x + 25;
-  const screenY = player.y + 20;
-  const rotation = player.vy * 0.08;
-  trail.push({x: screenX, y: screenY, rot: rotation});
+  // Store WORLD coordinates for trail
+  trail.push({
+    x: player.x + 25,
+    y: player.y + 20,
+    rot: player.vy * 0.08
+  });
+
   if (trail.length > maxTrailLength) trail.shift();
 
   for (let s of spikes) {
@@ -264,7 +266,6 @@ function draw() {
     const imgRatio = ramadanBgImg.width / ramadanBgImg.height;
     const canvasRatio = canvas.width / canvas.height;
     let drawWidth, drawHeight, offsetX, offsetY;
-
     if (imgRatio > canvasRatio) {
       drawHeight = canvas.height;
       drawWidth = drawHeight * imgRatio;
@@ -319,13 +320,16 @@ function draw() {
     }
   }
 
-  // Draw trail (using stored screen coordinates)
+  // Draw trail – now using world → screen conversion
   for (let i = 0; i < trail.length; i++) {
     const t = trail[i];
+    const trailScreenX = t.x - cameraX;
+    if (trailScreenX < -100 || trailScreenX > canvas.width + 100) continue;
+
     const alpha = (i + 1) * trailFadeStep;
     ctx.save();
-    ctx.globalAlpha = alpha * 0.6;
-    ctx.translate(t.x, t.y);
+    ctx.globalAlpha = alpha * 0.7;   // slightly stronger visibility
+    ctx.translate(trailScreenX, t.y);
     ctx.rotate(t.rot);
     ctx.fillStyle = '#a0f';
     ctx.beginPath();
