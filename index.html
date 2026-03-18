@@ -79,7 +79,7 @@
   <div id="progressTextComplete" class="progress-text">0%</div>
   <p style="font-size:36px;">Distance: <span id="finalDistance">0</span></p>
   <button onclick="nextLevel()">NEXT TRIAL</button>
-  <button onclick="showLevelSelect()">TRIAL SELECT</button>
+  <button onclick="location.reload()">TRIAL SELECT</button>
 </div>
 
 <div id="restart" class="screen" style="color:#f00; background:rgba(20,0,0,0.95);">
@@ -90,7 +90,7 @@
   <div id="progressTextDeath" class="progress-text">0%</div>
   <p style="font-size:32px;">Distance: <span id="deathDistance">0</span></p>
   <button onclick="restartLevel()">TRY AGAIN</button>
-  <button onclick="showLevelSelect()">TRIAL SELECT</button>
+  <button onclick="location.reload()">TRIAL SELECT</button>
 </div>
 
 <div id="ui">Level <span id="levelNum">1</span> | Progress: <span id="progressUI">0%</span></div>
@@ -150,13 +150,12 @@ let saws = [];
 
 let lastSoundTime = 0;
 
-const TARGET_DISTANCE = 5920; // win at ~5800 + start offset
+const TARGET_DISTANCE = 5920;
 
 function updateProgress() {
   const progress = Math.min(100, Math.floor((player.x / TARGET_DISTANCE) * 100));
   document.getElementById('progressUI').textContent = progress + '%';
 
-  // Update complete screen
   const fillComplete = document.getElementById('progressFillComplete');
   const textComplete = document.getElementById('progressTextComplete');
   if (fillComplete && textComplete) {
@@ -165,7 +164,6 @@ function updateProgress() {
     document.getElementById('finalDistance').textContent = Math.floor(player.x);
   }
 
-  // Update death screen
   const fillDeath = document.getElementById('progressFillDeath');
   const textDeath = document.getElementById('progressTextDeath');
   if (fillDeath && textDeath) {
